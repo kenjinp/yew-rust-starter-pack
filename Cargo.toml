@@ -6,4 +6,5 @@ edition = "2018"
 
 [dependencies]
 stdweb = "0.4.2"
+rand = { version = "0.5.5",  features = ["stdweb"] }
 yew = { git = "https://github.com/DenisKolodin/yew", features = ["toml"] }

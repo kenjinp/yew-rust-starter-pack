@@ -1,20 +1,23 @@
+#[macro_use]
 extern crate stdweb;
 #[macro_use]
 extern crate yew;
 
+
+mod is_in_triangle;
 use stdweb::web::Date;
+use stdweb::Value;
 use yew::prelude::*;
 use yew::services::ConsoleService;
 
 pub struct Model {
     console: ConsoleService,
-    value: i64,
+    value: f32,
 }
 
 pub enum Msg {
-    Increment,
-    Decrement,
-    Bulk(Vec<Msg>),
+    Smart,
+    Dumb,
 }
 
 impl Component for Model {
@@ -24,24 +27,66 @@ impl Component for Model {
     fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
         Model {
             console: ConsoleService::new(),
-            value: 0,
+            value: 0.0,
         }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::Increment => {
-                self.value = self.value + 1;
-                self.console.log("plus one");
+            Msg::Smart => {
+                self.console.log("go!");
+                let my_test_stuff = is_in_triangle::TestStuff::new();
+                js! {
+                    console.log(performance.now());
+                }
+                for n in 0..10000000  {
+                    let a = is_in_triangle::triangle_test(
+                        my_test_stuff.px[n],
+                        my_test_stuff.py[n],
+
+                        my_test_stuff.ax[n],
+                        my_test_stuff.ay[n],
+
+
+                        my_test_stuff.bx[n],
+                        my_test_stuff.by[n],
+
+
+                        my_test_stuff.cx[n],
+                        my_test_stuff.cy[n],
+                    );
+                }
+                js! {
+                    console.log(performance.now());
+                }
             }
-            Msg::Decrement => {
-                self.value = self.value - 1;
-                self.console.log("minus one");
+            Msg::Dumb => {
+                self.console.log("go dumb!");
+                let my_test_stuff = is_in_triangle::TestStuff::new();
+                js! {
+                    console.log(performance.now());
+                }
+                for n in 0..1000  {
+                    is_in_triangle::dumb_test(
+                        my_test_stuff.px[n],
+                        my_test_stuff.py[n],
+
+                        my_test_stuff.ax[n],
+                        my_test_stuff.ay[n],
+
+
+                        my_test_stuff.bx[n],
+                        my_test_stuff.by[n],
+
+
+                        my_test_stuff.cx[n],
+                        my_test_stuff.cy[n],
+                    )
+                }
+                js! {
+                    console.log(performance.now());
+                }
             }
-            Msg::Bulk(list) => for msg in list {
-                self.update(msg);
-                self.console.log("Bulk action");
-            },
         }
         true
     }
@@ -50,11 +95,11 @@ impl Component for Model {
 impl Renderable<Model> for Model {
     fn view(&self) -> Html<Self> {
         html! {
-            <div>
+            <div class=("container"),>
+              <h1>{"Speed Test!!!"}</h1>
                 <nav class="menu",>
-                    <button onclick=|_| Msg::Increment,>{ "Increment" }</button>
-                    <button onclick=|_| Msg::Decrement,>{ "Decrement" }</button>
-                    <button onclick=|_| Msg::Bulk(vec![Msg::Increment, Msg::Increment]),>{ "Increment Twice" }</button>
+                    <button onclick=|_| Msg::Smart,>{ "Smart" }</button>
+                    <button onclick=|_| Msg::Dumb,>{ "Dumb" }</button>
                 </nav>
                 <p>{ self.value }</p>
                 <p>{ Date::new().to_string() }</p>
